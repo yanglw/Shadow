@@ -69,7 +69,7 @@ public class PluginContainerActivity extends GeneratedPluginContainerActivity im
     }
 
     @Override
-    final protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         isBeforeOnCreate = false;
         mHostTheme = null;//释放资源
 
@@ -84,11 +84,29 @@ public class PluginContainerActivity extends GeneratedPluginContainerActivity im
             hostActivityDelegate.onCreate(savedInstanceState);
         } else {
             //这里是进程被杀后重启后走到，当需要恢复fragment状态的时候，由于系统保留了TAG，会因为找不到fragment引起crash
-            super.onCreate(null);
-            Log.e(TAG, "onCreate: hostActivityDelegate==null finish activity");
-            finish();
-            System.exit(0);
+            onHostActivityDelegateLoadFail(savedInstanceState);
         }
+    }
+
+    /**
+     * 当加载页面代理失败时调用此方法。
+     *
+     * @param savedInstanceState 同 {@link #onCreate(Bundle)} 。
+     */
+    protected void onHostActivityDelegateLoadFail(Bundle savedInstanceState) {
+        super.onCreate(null);
+        Log.e(TAG, "onCreate: hostActivityDelegate==null finish activity");
+        finish();
+        System.exit(0);
+    }
+
+    /**
+     * 提供给子类使用，用于让子类在 {@link #onHostActivityDelegateLoadFail(Bundle)} 执行 {@link Activity#onCreate(Bundle)} 。
+     *
+     * @param savedInstanceState 同 {@link #onCreate(Bundle)} 。
+     */
+    protected void callSuperClassActivityOnCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     /**
